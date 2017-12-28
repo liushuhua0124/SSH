@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+	http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd
+	">
+	
+	
+	<!-- spring是bean的容器(service+repository) -->
+	<context:component-scan base-package="cn">
+		<!-- 不扫controller,spring只扫service+repository -->
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+	
+	<!-- 所有数据库操作的源头，实现自接口DataSouce
+		DriverManagerDataSource (请求产生一个连接，用完就关闭，效率不高，连接池，连接重用)
+		常用的数据源有:c3p0,dbcp,druid(阿里巴巴的,有个监控功能)
+	 -->
+	 <context:property-placeholder location="classpath:mysql.properties"/>
+	 <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+	 	<property name="url" value="${url}"></property>
+	 	<property name="driverClassName" value="${driverClass}"></property>
+	 	<property name="username" value="${userid}"></property>
+	 	<property name="password" value="${password}"></property>
+	 	<!-- 默认初始化的连接个数 -->
+	 	<property name="initialSize" value="1"></property>
+	 	<!-- 最大允许的连接个数 -->
+	 	<property name="maxActive" value="200"></property>
+	 	<!-- 最大的等待人数 -->
+	 	<property name="maxIdle" value="100"></property>
+	 </bean>
+	 
+	 <!-- 集成mybatis -->
+	 <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	 	<property name="dataSource" ref="dataSource"></property>
+	 </bean>
+	 
+	 <!-- 没有set方法,用构造器注入 -->
+	 <bean id="sessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+	 	<constructor-arg index="0" ref="sqlSessionFactory"></constructor-arg>
+	 </bean>
+	 <!-- 扫描mybatis的接口映射 -->
+	 <bean id="scannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+	 	<property name="basePackage" value="cn.*..*.mapper"></property>
+	 </bean>
+	 
+	 <!-- 配置事务管理器 -->
+	 <bean id="tm" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	 	<property name="dataSource" ref="dataSource"></property>
+	 </bean>
+	 
+	 
+	 
+	 <!-- 连接数据库realm -->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		 <property name="realm" ref="myDbRealm"/>
+	</bean>
+	<!-- 后置处理器,销毁securityManager的 -->
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+	 <!-- spring配置ini文件 -->
+	 <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+	    <property name="securityManager" ref="securityManager"/>
+	    <!-- 登录的页面 -->
+	    <property name="loginUrl" value="/login.html"/>
+	    <!-- 没有权限的页面 -->
+	    <property name="unauthorizedUrl" value="/un.html"/>
+	    <property name="filters">
+	        <util:map>
+	            <entry key="authc" value-ref="myFilter"/>
+	        </util:map>
+	    </property>
+	    <property name="filterChainDefinitions">
+	        <value>
+	        	/** = authc
+	        </value>
+	    </property>
+	</bean>
+</beans>
