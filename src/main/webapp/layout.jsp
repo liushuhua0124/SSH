@@ -88,15 +88,15 @@
 		</div>
 		<div data-options="region:'center',iconCls:'icon-ok'">
 			<div id="mytabs" class="easyui-tabs" style="width:100%;height:100%">
-		<div title="欢迎使用" style="padding:10px">
-			<div id="box">
-				<div class="pic"><img src="image/1.jpg" width="100%" height="100%" /></div>
-				<div class="pic"><img src="image/2.jpg" width="100%" height="100%" /></div>
-				<div class="pic"><img src="image/3.jpg" width="100%" height="100%" /></div>
-				<div class="pic"><img src="image/4.jpg" width="100%" height="100%" /></div>
+			<div title="欢迎使用" style="padding:10px">
+				<div id="box">
+					<div class="pic"><img src="image/1.jpg" width="100%" height="100%" /></div>
+					<div class="pic"><img src="image/2.jpg" width="100%" height="100%" /></div>
+					<div class="pic"><img src="image/3.jpg" width="100%" height="100%" /></div>
+					<div class="pic"><img src="image/4.jpg" width="100%" height="100%" /></div>
+				</div>
 			</div>
 		</div>
-	</div>
 		</div>
 	</div>
   </body>
